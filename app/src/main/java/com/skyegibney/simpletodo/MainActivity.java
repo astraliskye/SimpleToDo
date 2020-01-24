@@ -1,9 +1,11 @@
 package com.skyegibney.simpletodo;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -23,6 +25,10 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity
 {
+    public static final String KEY_ITEM_TEXT = "todo_item_text";
+    public static final String KEY_ITEM_POSITION = "todo_item_position";
+    public static final int EDIT_TEXT_CODE = 20;
+
     List<String> todoItems;
 
     RecyclerView todoListView;
@@ -36,9 +42,9 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        todoListView = (RecyclerView)findViewById(R.id.todoList);
-        todoInputView = (EditText)findViewById(R.id.todoInput);
-        addButtonView = (Button)findViewById(R.id.addButton);
+        todoListView = findViewById(R.id.todoList);
+        todoInputView = findViewById(R.id.todoInput);
+        addButtonView = findViewById(R.id.addButton);
 
         loadItems();
 
@@ -56,7 +62,18 @@ public class MainActivity extends AppCompatActivity
             }
         };
 
-        itemsAdapter = new ItemsAdapter(todoItems, onLongClickListener);
+        ItemsAdapter.OnClickListener onClickListener = new ItemsAdapter.OnClickListener()
+        {
+            public void onItemClicked(int position)
+            {
+                Intent intent = new Intent(MainActivity.this, EditActivity.class);
+                intent.putExtra(KEY_ITEM_TEXT, todoItems.get(position));
+                intent.putExtra(KEY_ITEM_POSITION, position);
+                startActivityForResult(intent, EDIT_TEXT_CODE);
+            }
+        };
+
+        itemsAdapter = new ItemsAdapter(todoItems, onLongClickListener, onClickListener);
         todoListView.setAdapter(itemsAdapter);
         todoListView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -76,6 +93,29 @@ public class MainActivity extends AppCompatActivity
                 saveItems();
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK && requestCode == EDIT_TEXT_CODE)
+        {
+            int position = data.getExtras().getInt(KEY_ITEM_POSITION);
+            todoItems.set(position, data.getStringExtra(KEY_ITEM_TEXT));
+
+            itemsAdapter.notifyItemChanged(position);
+
+            saveItems();
+
+            Toast.makeText(getApplicationContext(), "Successfully updated item",
+                    Toast.LENGTH_SHORT).show();
+        }
+        else
+        {
+            Log.w("MainActivity", "Unknown call to onActivityResult");
+        }
     }
 
     private File getDataFile()
