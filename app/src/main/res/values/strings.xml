@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Simple ToDo</string>
+    <string name="buttonAdd">Add</string>
+    <string name="editText">Enter some text...</string>
+</resources>
