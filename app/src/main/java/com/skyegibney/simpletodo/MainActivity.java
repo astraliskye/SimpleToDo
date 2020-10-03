@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,15 +26,20 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity
 {
+    // Constants
     public static final String KEY_ITEM_TEXT = "todo_item_text";
     public static final String KEY_ITEM_POSITION = "todo_item_position";
     public static final int EDIT_TEXT_CODE = 20;
 
+    Context context;
     List<String> todoItems;
 
+    // Declare views
     RecyclerView todoListView;
     EditText todoInputView;
     Button addButtonView;
+
+    // Declare adapter for the recyclerview
     ItemsAdapter itemsAdapter;
 
     @Override
@@ -42,26 +48,35 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        context = getApplicationContext();
+
+        // Find views
         todoListView = findViewById(R.id.todoList);
         todoInputView = findViewById(R.id.todoInput);
         addButtonView = findViewById(R.id.addButton);
 
+        // Load items from local storage
         loadItems();
 
-        ItemsAdapter.OnLongClickListener onLongClickListener = new ItemsAdapter.OnLongClickListener()
+        // Listen for a long click in the adapter, remove the item at the intended location,
+        // then save items
+        ItemsAdapter.OnLongClickListener onLongClickListener =
+                new ItemsAdapter.OnLongClickListener()
         {
             public void onItemLongClicked(int position)
             {
                 todoItems.remove(position);
                 itemsAdapter.notifyItemRemoved(position);
 
-                Toast.makeText(getApplicationContext(), "Item was removed",
-                        Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Successfully removed item", Toast.LENGTH_SHORT).
+                        show();
 
                 saveItems();
             }
         };
 
+        // Listen for a click in the adapter, and start an intent to edit the item at the clicked
+        // position
         ItemsAdapter.OnClickListener onClickListener = new ItemsAdapter.OnClickListener()
         {
             public void onItemClicked(int position)
@@ -77,6 +92,8 @@ public class MainActivity extends AppCompatActivity
         todoListView.setAdapter(itemsAdapter);
         todoListView.setLayoutManager(new LinearLayoutManager(this));
 
+        // When the add button is clicked, take the string in the input and add it to the
+        // adapter
         addButtonView.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -87,8 +104,7 @@ public class MainActivity extends AppCompatActivity
                 itemsAdapter.notifyItemInserted(todoItems.size() - 1);
                 todoInputView.setText("");
 
-                Toast.makeText(getApplicationContext(), "Item was added",
-                        Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Item was added", Toast.LENGTH_SHORT).show();
 
                 saveItems();
             }
@@ -100,6 +116,8 @@ public class MainActivity extends AppCompatActivity
     {
         super.onActivityResult(requestCode, resultCode, data);
 
+        // When the edit activity completes, replace the edited item in the list and save
+        // the list locally
         if (resultCode == RESULT_OK && requestCode == EDIT_TEXT_CODE)
         {
             int position = data.getExtras().getInt(KEY_ITEM_POSITION);
@@ -109,8 +127,7 @@ public class MainActivity extends AppCompatActivity
 
             saveItems();
 
-            Toast.makeText(getApplicationContext(), "Successfully updated item",
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Successfully updated item", Toast.LENGTH_SHORT).show();
         }
         else
         {
@@ -118,11 +135,13 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    // Retrieve file pathname where local data is stored
     private File getDataFile()
     {
         return new File(getFilesDir(), "data.txt");
     }
 
+    // Attempts to load list from a local datastore
     private void loadItems()
     {
         try
@@ -137,6 +156,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    // Attempts to store the list in the local datastore
     private void saveItems()
     {
         try

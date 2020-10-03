@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-// Used to display items in the recylcer view
+// Takes a list of data and connects it to a RecyclerView
 public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ViewHolder>
 {
     public interface OnLongClickListener
@@ -76,7 +76,7 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ViewHolder>
         return items.size();
     }
 
-    // Manages the subviews generated under the recycler view by the adapter
+    // Class to hold the views inflated
     class ViewHolder extends RecyclerView.ViewHolder
     {
         TextView textView;

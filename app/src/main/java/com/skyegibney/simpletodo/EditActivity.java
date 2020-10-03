@@ -10,6 +10,7 @@ import android.widget.EditText;
 
 public class EditActivity extends AppCompatActivity
 {
+    // Declare views
     EditText inputView;
     Button doneButton;
 
@@ -19,13 +20,18 @@ public class EditActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit);
 
+        // Find views
         inputView = findViewById(R.id.editTodoInput);
         doneButton = findViewById(R.id.btnDone);
 
+        // Change title
         getSupportActionBar().setTitle("Edit Item");
 
+        // Populate text field with current item
         inputView.setText(getIntent().getStringExtra(MainActivity.KEY_ITEM_TEXT));
 
+        // When done editing, the user clicks on the done button which sends data back
+        // to the main activity to save
         doneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v)
